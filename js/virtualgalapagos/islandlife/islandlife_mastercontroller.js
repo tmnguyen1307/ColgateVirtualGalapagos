@@ -1,4 +1,4 @@
-use strict'
+'use strict'
 //
 // Entry point of all pages in this module
 //
@@ -9,20 +9,27 @@ use strict'
 
 import { MasterController } from '../mastercontroller.js'
 import { overlay } from '../overlay.js'
-//import { IguanaAVController } from './iguana_avcontroller.js'
-//import { IslandLifeFieldbook } from './islandlife_fieldbook.js'
-import { IslandLifeToolbar } from './islandlife_toolbar.js'
+import { IguanaToolbar } from './iguana_toolbar.js'
 
-class IslandLifeMasterController extends MasterController {
+class IguanaMasterController extends MasterController {
   constructor (pageList, pageName) {
-    super(pageList, pageName, 'islandlife')
+    super(pageList, pageName, 'iguana')
   }
   init () {
     super.init()
   }
 
   static grabPageName () {
-    return
+    var path = window.location.pathname
+    path = path.split('/').splice(-2)
+    if (path[0] !== 'islandlife') { // submodules in the this module
+      path = path.join('/')
+    } else {
+      path = path[1]
+    }
+    path = path.split('.')
+    return path[0]
+  }
 }
 
 // Mastercontroller
@@ -53,8 +60,6 @@ for (var i = 0; i < pageList.length; i++) {
   toolbarLinks.push({ text: text[text.length - 1], url: url })
 }
 
-// whiteboard videos
-var videolist = ['Iguana_Pumice02', 'Iguana_PhyloTree02', 'Iguana_Evolution02']
 
 // init controllers
 var masterController = new IguanaMasterController(pageList, pageName)
@@ -67,32 +72,3 @@ overlay()
 var toolbar = new IguanaToolbar(toolbarLinks, masterController)
 toolbar.initToolbar()
 
-// AVcontroller
-var player = document.getElementById('player')
-if (player !== null) { // page has av set up
-  var avType
-  if (videolist.includes(pageName)) {
-    avType = 'video'
-  } else {
-    avType = 'audio'
-  }
-
-  var avController = new IguanaAVController(player, avType, masterController)
-  avController.start()
-  avController.setBGTrack()
-}
-
-// Fieldbook
-var currentPage = fbPages[pageName]
-if (currentPage == null) {
-  currentPage = 0
-}
-
-var fbController = new IguanaFieldbook(fbPages, 8, masterController)
-fbController.init()
-fbController.populateDivs()
-fbController.start(currentPage)
-
-if (pageName === 'Iguana_Evolution03') {
-  evolution(masterController, avController)
-}
